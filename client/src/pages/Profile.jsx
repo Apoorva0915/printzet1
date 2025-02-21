@@ -9,7 +9,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/auth/profile", {
+        const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/auth/profile`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
 

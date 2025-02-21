@@ -10,6 +10,7 @@ import CategoryDetails from "./pages/CategoryDetails";
 import Profile from "./pages/Profile";
 import OrderHistory from "./pages/OrderHistory";
 import OrderPage from "./pages/OrderPage";
+import CheckoutPage from "./pages/CheckoutPage";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/orders" element={<OrderHistory />} />
         <Route path="/order-page/:categoryId" element={<OrderPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
       </Routes>
       <Footer />
     </Router>

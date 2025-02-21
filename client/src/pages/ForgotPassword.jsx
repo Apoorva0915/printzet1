@@ -5,7 +5,7 @@ const ForgotPassword = () => {
   const [message, setMessage] = useState("");
   
   const handleForgotPassword = async () => {
-    const res = await fetch("http://localhost:5000/api/auth/forgot-password", {
+    const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/auth/forgot-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),

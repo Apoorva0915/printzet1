@@ -23,10 +23,9 @@ const Footer = () => {
           <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
           <ul className="space-y-2">
             <li><Link to="/" className="hover:text-gray-400">Home</Link></li>
-            <li><Link to="/services" className="hover:text-gray-400">Services</Link></li>
-            <li><Link to="/categories" className="hover:text-gray-400">Categories</Link></li>
-            <li><Link to="/about" className="hover:text-gray-400">About Us</Link></li>
-            <li><Link to="/contact" className="hover:text-gray-400">Contact Us</Link></li>
+            <li><Link to="/" className="hover:text-gray-400">Services</Link></li>
+            <li><Link to="/" className="hover:text-gray-400">Categories</Link></li>
+            <li><Link to="/" className="hover:text-gray-400">About Us</Link></li>
           </ul>
         </div>
 
@@ -35,13 +34,13 @@ const Footer = () => {
           <h3 className="text-xl font-semibold mb-4">Contact Us</h3>
           <p className="text-gray-400">📍 123 Printing Street, Ghaziabad, India</p>
           <p className="text-gray-400">📞 +91 98765 43210</p>
-          <p className="text-gray-400">📧 support@printshop.com</p>
+          <p className="text-gray-400">📧 support@printecom.com</p>
         </div>
       </div>
 
       {/* Copyright Section */}
       <div className="mt-8 text-center border-t border-gray-700 pt-4">
-        <p className="text-gray-500">© {new Date().getFullYear()} PrintShop. All Rights Reserved.</p>
+        <p className="text-gray-500">© {new Date().getFullYear()} PrintEcom. All Rights Reserved.</p>
       </div>
     </footer>
   );

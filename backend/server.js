@@ -7,6 +7,8 @@ import userData from "./routes/user.js";
 import authRoutes from "./routes/auth.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import paymentRoutes from "./routes/payment.js";
+
 
 dotenv.config();
 const app = express();
@@ -15,6 +17,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static("uploads")); // Serve uploaded files
+app.use("/api/payment", paymentRoutes);
 
 // Routes
 app.use("/api/auth", userRoutes, authRoutes, userData);

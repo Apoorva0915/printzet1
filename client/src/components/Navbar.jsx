@@ -10,13 +10,13 @@ const Navbar = () => {
         return (
             <nav className="bg-white shadow-md p-4 flex justify-between items-center">
                 {/* Logo */}
-                <Link to="/" className="text-2xl font-bold text-gray-800">PrintX</Link>
+                <Link to="/" className="text-2xl font-bold text-gray-800">PrintEcom</Link>
 
                 {/* Navigation Links */}
                 <div className="space-x-6">
                     <Link to="/" className="text-gray-700 hover:text-gray-900">Home</Link>
-                    <Link to="/services" className="text-gray-700 hover:text-gray-900">Services</Link>
-                    <Link to="/categories" className="text-gray-700 hover:text-gray-900">Categories</Link>
+                    <Link to="/" className="text-gray-700 hover:text-gray-900">Services</Link>
+                    <Link to="/" className="text-gray-700 hover:text-gray-900">Categories</Link>
                 </div>
 
                 {/* Right Side: Show User or Login/Signup */}

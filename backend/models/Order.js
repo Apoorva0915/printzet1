@@ -12,10 +12,10 @@ const OrderSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
-    filePath: {
-      type: String,
+    filePaths: {
+      type: [String],
       required: true,
-    },
+    },    
     numCopies: {
       type: Number,
       required: true,

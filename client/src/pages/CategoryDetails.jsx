@@ -11,7 +11,7 @@ const CategoryDetails = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/categories/${categoryId}`)
+      .get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/categories/${categoryId}`)
       .then((response) => {
         setCategory(response.data);
         setLoading(false);
@@ -40,7 +40,7 @@ const CategoryDetails = () => {
     <div className="container mx-auto px-6 py-10 flex flex-col md:flex-row items-center gap-10">
       <div className="md:w-1/2">
         <img
-          src={`/images/${category.id}.jpg`}
+          src={category.image}
           alt={category.name}
           className="w-full rounded-lg shadow-lg"
         />

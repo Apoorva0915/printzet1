@@ -15,7 +15,7 @@ const OrderPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/categories/${categoryId}`)
+    axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/categories/${categoryId}`)
       .then((res) => {
         setCategory(res.data);
         setLoading(false);
@@ -81,25 +81,38 @@ const OrderPage = () => {
       alert("Please upload at least one file.");
       return;
     }
-
+  
     const formData = new FormData();
-    files.forEach((file, index) => {
-      formData.append(`file${index}`, file);
+    files.forEach((file) => {
+      formData.append("files", file);  // Matches the backend field name
     });
+    
     formData.append("numCopies", numCopies);
     formData.append("colorType", colorType);
-    formData.append("categoryId", categoryId);
+    formData.append("categoryId", category._id); // Ensure it's using MongoDB _id
+    console.log("Category ID before sending:", category._id);
 
+    // Get token from local storage
+    const token = localStorage.getItem("token");
+  
     try {
-      await axios.post("http://localhost:5000/api/orders", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/orders`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`, // Send token in Authorization header
+        },
       });
-      alert("Order placed successfully!");
-      navigate("/");
+  
+      navigate("/checkout", { state: { order: response.data } });
     } catch (error) {
       console.error("Order Error:", error);
+      alert(error.response?.data?.message || "Something went wrong");
     }
   };
+  
+  
+  
+  
 
   if (loading) return <div>Loading...</div>;
 
