@@ -1,20 +1,20 @@
-import { useState, useRef, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useDropzone } from "react-dropzone";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 const OrderPage = () => {
+  const [files, setFiles] = useState([]);
+  const [numCopies, setNumCopies] = useState(1);
+  const [colorType, setColorType] = useState("black");
+  const [totalPages, setTotalPages] = useState(0);
+  const [category, setCategory] = useState({});
+  const [loading, setLoading] = useState(true);
   const { categoryId } = useParams();
   const navigate = useNavigate();
-  const fileInputRef = useRef(null);
-
-  const [files, setFiles] = useState([]);
-  const [previews, setPreviews] = useState([]);
-  const [numCopies, setNumCopies] = useState(1);
-  const [colorType, setColorType] = useState("blackWhite");
-  const [category, setCategory] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!categoryId) return;
     axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/categories/${categoryId}`)
       .then((res) => {
         setCategory(res.data);
@@ -23,176 +23,88 @@ const OrderPage = () => {
       .catch(() => navigate("/"));
   }, [categoryId, navigate]);
 
-  // Handle file selection
-  const handleFileChange = (event) => {
-    const uploadedFiles = Array.from(event.target.files);
-    if (files.length + uploadedFiles.length > 10) {
-      alert("You can upload up to 10 files only.");
-      return;
-    }
-    setFiles([...files, ...uploadedFiles]);
-    generatePreviews([...files, ...uploadedFiles]);
-  };
-
-  // Handle drag & drop
-  const handleDrop = (event) => {
-    event.preventDefault();
-    const droppedFiles = Array.from(event.dataTransfer.files);
-    if (files.length + droppedFiles.length > 10) {
-      alert("You can upload up to 10 files only.");
-      return;
-    }
-    setFiles([...files, ...droppedFiles]);
-    generatePreviews([...files, ...droppedFiles]);
-  };
-
-  // Prevent default behavior on drag over
-  const handleDragOver = (event) => {
-    event.preventDefault();
-  };
-
-  // Open file input on clicking the drop area
-  const handleClickUpload = () => {
-    fileInputRef.current.click();
-  };
-
-  // Remove a file
-  const removeFile = (index) => {
-    const updatedFiles = [...files];
-    updatedFiles.splice(index, 1);
-    setFiles(updatedFiles);
-    generatePreviews(updatedFiles);
-  };
-
-  // Generate previews
-  const generatePreviews = (fileList) => {
-    const newPreviews = fileList.map((file) => {
-      if (file.type.startsWith("image/")) {
-        return URL.createObjectURL(file);
-      }
-      return null;
-    });
-    setPreviews(newPreviews);
-  };
-
-  // Handle order submission
-  const handleOrderSubmit = async () => {
-    if (files.length === 0) {
-      alert("Please upload at least one file.");
-      return;
-    }
-  
+  const onDrop = async (acceptedFiles) => {
+    if (!category || !category._id) return;
     const formData = new FormData();
-    files.forEach((file) => {
-      formData.append("files", file);  // Matches the backend field name
-    });
-    
+    acceptedFiles.forEach((file) => formData.append("files", file));
+    formData.append("categoryId", category._id);
     formData.append("numCopies", numCopies);
     formData.append("colorType", colorType);
-    formData.append("categoryId", category._id); // Ensure it's using MongoDB _id
-    console.log("Category ID before sending:", category._id);
-
-    // Get token from local storage
-    const token = localStorage.getItem("token");
-  
     try {
-      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/orders`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`, // Send token in Authorization header
-        },
-      });
-  
-      navigate("/checkout", { state: { order: response.data } });
+      const response = await axios.post(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/orders`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          withCredentials: true,
+        }
+      );
+      setFiles((prev) => [...prev, ...acceptedFiles]);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
-      console.error("Order Error:", error);
-      alert(error.response?.data?.message || "Something went wrong");
+      console.error("Error uploading files:", error);
     }
   };
-  
-  
-  
-  
 
-  if (loading) return <div>Loading...</div>;
+  const placeOrder = () => {
+    if (!category || !category._id || files.length === 0) return;
+    navigate("/checkout", {
+      state: {
+        order: {
+          totalCost: calculateTotalCost(),
+          numCopies,
+          colorType,
+        },
+      },
+    });
+  };
 
-  const baseCost = category.costPerCopy;
-  const costMultiplier = colorType === "color" ? 2 : 1;
-  const totalCost = files.length * numCopies * baseCost * costMultiplier;
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+
+  const calculateTotalCost = () => {
+    if (!category?.costPerCopy) return 0;
+    return totalPages * numCopies * category.costPerCopy * (colorType === "color" ? 2 : 1);
+  };
+
+  if (loading) return <div className="text-center py-4">Loading...</div>;
 
   return (
-    <div className="container mx-auto px-6 py-10 flex flex-col md:flex-row items-center gap-10">
-      {/* File Upload Section */}
-      <div
-        className="border-2 border-dashed border-gray-400 w-1/2 h-64 flex flex-col items-center justify-center cursor-pointer relative overflow-auto p-2"
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onClick={handleClickUpload}
-      >
-        {files.length > 0 ? (
-          <div className="w-full h-full overflow-auto grid grid-cols-2 gap-2">
-            {files.map((file, index) => (
-              <div key={index} className="relative flex items-center">
-                {previews[index] ? (
-                  <img src={previews[index]} alt="Preview" className="max-h-20 max-w-20 rounded-md" />
-                ) : (
-                  <p className="text-gray-500 truncate w-32">{file.name}</p>
-                )}
-                {/* Remove File Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeFile(index);
-                  }}
-                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full px-2 py-1 text-xs"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+      <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 bg-white shadow-lg rounded-lg p-8">
+        <div className="border-dashed border-2 border-gray-300 p-6 rounded-lg flex flex-col items-center justify-center cursor-pointer bg-gray-50 hover:bg-gray-100 transition" {...getRootProps()}>
+          <input {...getInputProps()} />
+          <p className="text-gray-600">Drag & drop files here, or click to select files</p>
+          <ul className="mt-4 text-sm text-gray-500">
+            {files.map((file, index) => <li key={index}>{file.name}</li>)}
+          </ul>
+        </div>
+        <div className="bg-white shadow-md p-6 rounded-lg">
+          <h2 className="text-xl font-bold mb-4 text-gray-800">Order Details</h2>
+          <p className="text-gray-700 font-medium">Category: {category?.name}</p>
+          <div className="mt-4 flex items-center justify-between">
+            <span className="text-sm font-medium">Number of Copies</span>
+            <div className="flex items-center gap-2">
+              <button className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300" onClick={() => setNumCopies(numCopies > 1 ? numCopies - 1 : 1)}>-</button>
+              <span>{numCopies}</span>
+              <button className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300" onClick={() => setNumCopies(numCopies + 1)}>+</button>
+            </div>
           </div>
-        ) : (
-          <p className="text-gray-500">Drag & Drop up to 10 files or click to upload</p>
-        )}
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          className="hidden"
-          multiple
-        />
-      </div>
-
-      {/* Order Settings Section */}
-      <div className="w-1/2">
-        <h2 className="text-2xl font-bold mb-4">{category.name} Order</h2>
-
-        {/* Number of Copies */}
-        <div className="flex items-center gap-4">
-          <button onClick={() => setNumCopies((prev) => Math.max(prev - 1, 1))}>-</button>
-          <span className="text-xl">{numCopies}</span>
-          <button onClick={() => setNumCopies((prev) => prev + 1)}>+</button>
+          <div className="mt-4">
+            <label className="block text-sm font-medium">Color Type</label>
+            <select className="w-full border p-2 rounded mt-1" onChange={(e) => setColorType(e.target.value)}>
+              <option value="black">Black & White</option>
+              <option value="color">Color</option>
+            </select>
+          </div>
+          <p className="mt-4 text-sm font-medium">Total Pages: {totalPages}</p>
+          <p className="mt-2 text-lg font-bold text-blue-600">Total Cost: ₹{calculateTotalCost()}</p>
+          <button className="mt-6 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition" onClick={placeOrder}>
+            Proceed to Checkout
+          </button>
         </div>
-
-        {/* Color Selection */}
-        <div className="mt-4">
-          <label className="mr-2">Print Type:</label>
-          <select onChange={(e) => setColorType(e.target.value)} value={colorType}>
-            <option value="blackWhite">Black & White</option>
-            <option value="color">Color</option>
-          </select>
-        </div>
-
-        {/* Cost Display */}
-        <p className="text-lg font-bold mt-4">Total Cost: ₹{totalCost}</p>
-
-        {/* Place Order Button */}
-        <button
-          onClick={handleOrderSubmit}
-          className="mt-6 px-6 py-3 bg-green-600 text-white rounded-lg"
-        >
-          Place Order
-        </button>
       </div>
     </div>
   );
