@@ -13,14 +13,7 @@ import paymentRoutes from "./routes/payment.js";
 dotenv.config();
 const app = express();
 
-// Middleware
-// app.use(cors());
-app.use(
-  cors({
-    origin: "http://localhost:5173", // Allow frontend origin
-    credentials: true, // Allow cookies and authentication headers
-  })
-);
+app.use(cors({ origin: '*' }));
 
 app.use(express.json());
 app.use("/uploads", express.static("uploads")); // Serve uploaded files
