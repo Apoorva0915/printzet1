@@ -83,8 +83,12 @@ const Navbar = () => {
                 <div className="md:hidden bg-white shadow-md absolute top-16 left-0 w-full py-4">
                     <div className="flex flex-col space-y-4 px-6">
                         <Link to="/" className="text-gray-700 hover:text-blue-600 transition">Home</Link>
-                        <Link to="/services" className="text-gray-700 hover:text-blue-600 transition">Services</Link>
-                        <Link to="/categories" className="text-gray-700 hover:text-blue-600 transition">Categories</Link>
+                        <ScrollLink to="about" smooth={true} duration={500} className="text-gray-700 hover:text-gray-900 cursor-pointer">
+                        About US
+                    </ScrollLink>
+                    <ScrollLink to="categories" smooth={true} duration={500} className="text-gray-700 hover:text-gray-900 cursor-pointer">
+                        Categories
+                    </ScrollLink>
                     </div>
 
                     {/* Mobile User Section */}
