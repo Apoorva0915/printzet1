@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
+import { Link as ScrollLink } from "react-scroll";
 
 const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white py-10">
       <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
-        
+
         {/* Our Products Section */}
         <div>
           <h3 className="text-xl font-semibold mb-4">Our Products</h3>
@@ -23,9 +24,12 @@ const Footer = () => {
           <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
           <ul className="space-y-2">
             <li><Link to="/" className="hover:text-gray-400">Home</Link></li>
-            <li><Link to="/" className="hover:text-gray-400">Services</Link></li>
-            <li><Link to="/" className="hover:text-gray-400">Categories</Link></li>
-            <li><Link to="/" className="hover:text-gray-400">About Us</Link></li>
+            <li><ScrollLink to="categories" smooth={true} duration={500} className="hover:text-gray-400 cursor-pointer">
+              Categories
+            </ScrollLink></li>
+            <li><ScrollLink to="about" smooth={true} duration={500} className="hover:text-gray-400 cursor-pointer">
+            About US
+            </ScrollLink></li>
           </ul>
         </div>
 

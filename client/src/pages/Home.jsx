@@ -45,7 +45,7 @@ const Home = () => {
       </div>
 
       {/* About Section */}
-      <div className="container mx-auto px-6 py-20 flex flex-col md:flex-row items-center gap-8">
+      <div className="container mx-auto px-6 py-20 flex flex-col md:flex-row items-center gap-8" id="about">
         <div className="md:w-1/2">
           <h2 className="text-4xl font-bold text-gray-800 mb-4">About PrintEcom</h2>
           <p className="text-gray-600 leading-relaxed">
@@ -60,7 +60,7 @@ const Home = () => {
       </div>
 
       {/* Categories Section */}
-      <div className="container mx-auto px-6 py-16">
+      <div className="container mx-auto px-6 py-16" id="categories">
         <h2 className="text-4xl font-bold text-center text-gray-800 mb-8">Our Categories</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {categories.map((category, index) => (

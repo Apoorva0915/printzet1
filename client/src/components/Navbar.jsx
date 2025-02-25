@@ -1,37 +1,43 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { FiMenu, FiX, FiChevronDown } from "react-icons/fi";
+import { Link as ScrollLink } from "react-scroll";
 
 const Navbar = () => {
-    try {
-        const { user, logout } = useAuth();
-        const [dropdownOpen, setDropdownOpen] = useState(false);
+    const { user, logout } = useAuth();
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-        return (
-            <nav className="bg-white shadow-md p-4 flex justify-between items-center">
+    return (
+        <nav className="bg-white shadow-md p-4 sticky top-0 z-50">
+            <div className="container mx-auto flex justify-between items-center">
                 {/* Logo */}
-                <Link to="/" className="text-2xl font-bold text-gray-800">PrintEcom</Link>
-
-                {/* Navigation Links */}
-                <div className="space-x-6">
-                    <Link to="/" className="text-gray-700 hover:text-gray-900">Home</Link>
-                    <Link to="/" className="text-gray-700 hover:text-gray-900">Services</Link>
-                    <Link to="/" className="text-gray-700 hover:text-gray-900">Categories</Link>
+                <Link to="/" className="text-2xl font-bold text-gray-800">
+                    PrintEcom
+                </Link>
+                {/* Desktop Nav Links */}
+                <div className="hidden md:flex space-x-6">
+                    <Link to="/" className="text-gray-700 hover:text-blue-600 transition">Home</Link>
+                    <ScrollLink to="about" smooth={true} duration={500} className="text-gray-700 hover:text-gray-900 cursor-pointer">
+                        About US
+                    </ScrollLink>
+                    <ScrollLink to="categories" smooth={true} duration={500} className="text-gray-700 hover:text-gray-900 cursor-pointer">
+                        Categories
+                    </ScrollLink>
                 </div>
 
-                {/* Right Side: Show User or Login/Signup */}
-                <div className="relative">
+                {/* Right Side: User / Login-Signup */}
+                <div className="hidden md:block relative">
                     {user ? (
                         // User Dropdown
-                        <div>
+                        <div className="relative">
                             <button
                                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                                className="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-md hover:bg-gray-200"
+                                className="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-md hover:bg-gray-200 transition"
                             >
                                 <span className="font-medium">{user.fullName}</span>
-                                <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                </svg>
+                                <FiChevronDown />
                             </button>
 
                             {dropdownOpen && (
@@ -40,35 +46,87 @@ const Navbar = () => {
                                     <Link to="/orders" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Order History</Link>
                                     <button
                                         onClick={() => {
-                                            console.log("Sign Out Clicked!");
                                             logout();
                                             setDropdownOpen(false);
                                         }}
                                         className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
-                                        >
+                                    >
                                         Sign Out
                                     </button>
-                               </div>
+                                </div>
                             )}
                         </div>
                     ) : (
-                        // Login / Signup
+                        // Login & Signup Buttons
                         <div className="space-x-4">
-                            <Link to="/login" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                            <Link to="/login" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
                                 Login
                             </Link>
-                            <Link to="/signup" className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
+                            <Link to="/signup" className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
                                 Sign Up
                             </Link>
                         </div>
                     )}
                 </div>
-            </nav>
-        );
-    } catch (error) {
-        console.error("Navbar Error:", error);
-        return null;
-    }
+
+                {/* Mobile Menu Toggle Button */}
+                <button
+                    className="md:hidden text-gray-800 text-2xl"
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                >
+                    {mobileMenuOpen ? <FiX /> : <FiMenu />}
+                </button>
+            </div>
+
+            {/* Mobile Nav Menu */}
+            {mobileMenuOpen && (
+                <div className="md:hidden bg-white shadow-md absolute top-16 left-0 w-full py-4">
+                    <div className="flex flex-col space-y-4 px-6">
+                        <Link to="/" className="text-gray-700 hover:text-blue-600 transition">Home</Link>
+                        <Link to="/services" className="text-gray-700 hover:text-blue-600 transition">Services</Link>
+                        <Link to="/categories" className="text-gray-700 hover:text-blue-600 transition">Categories</Link>
+                    </div>
+
+                    {/* Mobile User Section */}
+                    <div className="border-t mt-4 pt-4 px-6">
+                        {user ? (
+                            <div>
+                                <button
+                                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                                    className="w-full text-left flex items-center justify-between px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200"
+                                >
+                                    <span className="font-medium">{user.fullName}</span>
+                                    <FiChevronDown />
+                                </button>
+
+                                {dropdownOpen && (
+                                    <div className="mt-2 bg-white shadow-lg rounded-lg py-2">
+                                        <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</Link>
+                                        <Link to="/orders" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Order History</Link>
+                                        <button
+                                            onClick={logout}
+                                            className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
+                                        >
+                                            Sign Out
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col space-y-2">
+                                <Link to="/login" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition text-center">
+                                    Login
+                                </Link>
+                                <Link to="/signup" className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition text-center">
+                                    Sign Up
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+        </nav>
+    );
 };
 
 export default Navbar;
