@@ -46,9 +46,33 @@ router.post("/login", async (req, res) => {
     // Generate JWT
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    res.json({ token, user: { fullName: user.fullName, email: user.email, mobile: user.mobile } });
+    res.json({ token, user: { fullName: user.fullName, email: user.email, mobile: user.mobile ,  isAdmin: user.isAdmin,} });
   } catch (error) {
     res.status(500).json({ message: "Login failed", error });
+  }
+});
+
+router.put("/update-address", async (req, res) => {
+  try {
+    const { email, address, city, state, pincode } = req.body;
+
+    if (!email || !address || !city || !state || !pincode) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    user.address = { address, city, state, pincode };
+    await user.save();
+
+    res.status(200).json({ message: "Address updated successfully.", user });
+  } catch (error) {
+    console.error("Error updating address:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 

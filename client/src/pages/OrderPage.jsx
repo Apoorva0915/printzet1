@@ -6,7 +6,7 @@ import axios from "axios";
 const OrderPage = () => {
   const [files, setFiles] = useState([]);
   const [numCopies, setNumCopies] = useState(1);
-  const [colorType, setColorType] = useState("black");
+  const [colorType, setColorType] = useState("blackWhite");
   const [totalPages, setTotalPages] = useState(0);
   const [category, setCategory] = useState({});
   const [loading, setLoading] = useState(true);
@@ -78,7 +78,17 @@ const OrderPage = () => {
           <input {...getInputProps()} />
           <p className="text-gray-600">Drag & drop files here, or click to select files</p>
           <ul className="mt-4 text-sm text-gray-500">
-            {files.map((file, index) => <li key={index}>{file.name}</li>)}
+            {files.map((file, index) => (
+              <li key={index}>
+                {file instanceof File ? (
+                  <span>{file.name}</span> // ✅ Show filename instead of a File object
+                ) : (
+                  <a href={file} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                    View File {index + 1}
+                  </a>
+                )}
+              </li>
+            ))}
           </ul>
         </div>
         <div className="bg-white shadow-md p-6 rounded-lg">
@@ -94,10 +104,14 @@ const OrderPage = () => {
           </div>
           <div className="mt-4">
             <label className="block text-sm font-medium">Color Type</label>
-            <select className="w-full border p-2 rounded mt-1" onChange={(e) => setColorType(e.target.value)}>
-              <option value="black">Black & White</option>
+            <select
+              className="w-full border p-2 rounded mt-1"
+              onChange={(e) => setColorType(e.target.value)}
+            >
+              <option value="blackWhite">Black & White</option> {/* ✅ Use correct value */}
               <option value="color">Color</option>
             </select>
+
           </div>
           <p className="mt-4 text-sm font-medium">Total Pages: {totalPages}</p>
           <p className="mt-2 text-lg font-bold text-blue-600">Total Cost: ₹{calculateTotalCost()}</p>

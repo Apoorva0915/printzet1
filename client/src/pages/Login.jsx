@@ -12,12 +12,13 @@ const Login = () => {
   const handleLogin = async () => {
     setError(null);
     try {
-      await login({ emailOrMobile, password });
-      navigate("/"); 
+      const userData = await login({ emailOrMobile, password });
+      navigate(userData.isAdmin ? "/admin/dashboard" : "/");
     } catch (err) {
       setError(err.message);
     }
   };
+  
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
-const AuthContext = createContext(null); 
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -28,9 +28,14 @@ export const AuthProvider = ({ children }) => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Login failed");
 
-      localStorage.setItem("user", JSON.stringify(data.user));
+      const userData = { ...data.user, isAdmin: data.user.isAdmin || false };
+
+      localStorage.setItem("user", JSON.stringify(userData));
       localStorage.setItem("token", data.token);
-      setUser(data.user);
+      setUser(userData);
+
+      // ✅ Redirect without `useNavigate`
+      window.location.href = userData.isAdmin ? "/admin/dashboard" : "/";
 
       return data;
     } catch (error) {
@@ -53,9 +58,14 @@ export const AuthProvider = ({ children }) => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Signup failed");
 
-      localStorage.setItem("user", JSON.stringify(data.user));
+      const newUser = { ...data.user, isAdmin: data.user.isAdmin || false };
+
+      localStorage.setItem("user", JSON.stringify(newUser));
       localStorage.setItem("token", data.token);
-      setUser(data.user);
+      setUser(newUser);
+
+      // ✅ Redirect without `useNavigate`
+      window.location.href = newUser.isAdmin ? "/admin/dashboard" : "/";
 
       return data;
     } catch (error) {
@@ -67,11 +77,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    console.log("Logout function called!");  
+    console.log("Logout function called!");
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    window.location.reload();
     setUser(null);
+    window.location.href = "/login"; // ✅ Redirect without `useNavigate`
   };
 
   return (
@@ -80,7 +90,6 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

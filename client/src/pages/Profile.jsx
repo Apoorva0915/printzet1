@@ -31,25 +31,41 @@ const Profile = () => {
   }, [navigate]);
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-2xl font-bold mb-4">Profile</h2>
-      {loading ? (
-        <p>Loading...</p>
-      ) : user ? (
-        <div>
-          <p><strong>Full Name:</strong> {user.fullName}</p>
-          <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Mobile:</strong> {user.mobile}</p>
-          <button
-            onClick={() => navigate("/orders")}
-            className="w-full bg-blue-500 text-white p-2 rounded mt-3 hover:bg-blue-600"
-          >
-            View Order History
-          </button>
-        </div>
-      ) : (
-        <p>User not found.</p>
-      )}
+    <div className="min-h-screen flex items-center justify-center  bg-gray-50  p-6">
+      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Profile</h2>
+
+        {loading ? (
+          <p className="text-center text-gray-600">Loading...</p>
+        ) : user ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-blue-500 text-white flex items-center justify-center text-xl font-bold rounded-full">
+                {user.fullName.charAt(0)}
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-gray-700">{user.fullName}</p>
+                <p className="text-gray-500">{user.email}</p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-gray-100 rounded-lg">
+              <p className="text-gray-700"><strong>Full Name:</strong> {user.fullName}</p>
+              <p className="text-gray-700"><strong>Email:</strong> {user.email}</p>
+              <p className="text-gray-700"><strong>Mobile:</strong> {user.mobile || "N/A"}</p>
+            </div>
+
+            <button
+              onClick={() => navigate("/orders")}
+              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+            >
+              View Order History
+            </button>
+          </div>
+        ) : (
+          <p className="text-center text-red-500">User not found.</p>
+        )}
+      </div>
     </div>
   );
 };

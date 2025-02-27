@@ -1,6 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import query from "india-pincode-search";
 
 const CheckoutPage = () => {
   const location = useLocation();
@@ -23,36 +26,80 @@ const CheckoutPage = () => {
     setCustomer({ ...customer, [e.target.name]: e.target.value });
   };
 
-  const handlePayment = async () => {
-    const { data } = await axios.post(
-      `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/payment`,
-      {
-        amount: order.totalCost,
-        customer,
+  const handlePhoneChange = (value) => {
+    setCustomer({ ...customer, phone: value });
+  };
+
+  const handlePincodeChange = (e) => {
+    const pincode = e.target.value;
+    setCustomer({ ...customer, pincode });
+
+    if (pincode.length === 6) {
+      const details = query.search(pincode);
+
+      if (details && details.length > 0) {
+        setCustomer({
+          ...customer,
+          pincode,
+          city: details[0].district || details[0].city,
+          state: details[0].state, // Fetching state dynamically
+        });
+      } else {
+        alert("Invalid pincode. Please enter a valid Indian pincode.");
       }
-    );
+    }
+  };
 
-    const options = {
-      key: "YOUR_RAZORPAY_KEY",
-      amount: data.amount,
-      currency: "INR",
-      name: "Printing Service",
-      description: "Order Payment",
-      order_id: data.order_id,
-      handler: function (response) {
-        alert("Payment Successful!");
-        navigate("/");
-      },
-      prefill: {
-        name: customer.name,
+  const handlePayment = async () => {
+    if (!window.Razorpay) {
+      alert("Razorpay SDK failed to load. Please check your internet connection and try again.");
+      return;
+    }
+
+    try {
+      // First, update the user's address in the database
+      await axios.put(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/auth/update-address`, {
         email: customer.email,
-        contact: customer.phone,
-      },
-      theme: { color: "#2563eb" },
-    };
+        address: customer.address,
+        city: customer.city,
+        state: customer.state,
+        pincode: customer.pincode,
+      });
 
-    const rzp1 = new window.Razorpay(options);
-    rzp1.open();
+      // Then, proceed with payment
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/payment`,
+        {
+          amount: order.totalCost,
+          customer,
+        }
+      );
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: data.amount,
+        currency: "INR",
+        name: "Printing Service",
+        description: "Order Payment",
+        order_id: data.order_id,
+        handler: function (response) {
+          alert("Payment Successful!");
+          navigate("/");
+        },
+        prefill: {
+          name: customer.name,
+          email: customer.email,
+          contact: customer.phone,
+        },
+        theme: { color: "#2563eb" },
+      };
+
+      const rzp1 = new window.Razorpay(options);
+      rzp1.open();
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Something went wrong. Please try again.");
+    }
   };
 
   if (!order) {
@@ -70,16 +117,22 @@ const CheckoutPage = () => {
         {/* Order Summary */}
         <div className="border p-6 rounded-lg shadow-md bg-blue-50">
           <h2 className="text-2xl font-bold mb-4 text-blue-700">Order Summary</h2>
-          <p className="text-lg font-semibold text-gray-700">Total Cost: <span className="text-blue-600 font-bold">₹{order.totalCost}</span></p>
-          <p className="text-gray-700">Copies: <span className="font-semibold">{order.numCopies}</span></p>
-          <p className="text-gray-700">Print Type: <span className="font-semibold">{order.colorType}</span></p>
+          <p className="text-lg font-semibold text-gray-700">
+            Total Cost: <span className="text-blue-600 font-bold">₹{order.totalCost}</span>
+          </p>
+          <p className="text-gray-700">
+            Copies: <span className="font-semibold">{order.numCopies}</span>
+          </p>
+          <p className="text-gray-700">
+            Print Type: <span className="font-semibold">{order.colorType}</span>
+          </p>
         </div>
 
         {/* Address Form */}
         <div className="border p-6 rounded-lg shadow-md bg-white">
           <h2 className="text-2xl font-bold mb-4 text-gray-800">Shipping Details</h2>
           <div className="space-y-4">
-            {["name", "email", "phone", "address", "city", "state", "pincode"].map((field) => (
+            {["name", "email", "address"].map((field) => (
               <input
                 key={field}
                 type={field === "email" ? "email" : "text"}
@@ -90,6 +143,52 @@ const CheckoutPage = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             ))}
+
+            {/* Phone Input with Country Code */}
+            <PhoneInput
+              country={"in"}
+              onlyCountries={["in"]}
+              value={customer.phone}
+              onChange={handlePhoneChange}
+              inputProps={{
+                name: "phone",
+                required: true,
+                autoFocus: true,
+              }}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+            {/* Pincode Input */}
+            <input
+              type="text"
+              name="pincode"
+              placeholder="Pincode"
+              value={customer.pincode}
+              onChange={handlePincodeChange}
+              maxLength="6"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+            {/* City (Auto-filled) */}
+            <input
+              type="text"
+              name="city"
+              placeholder="City"
+              value={customer.city}
+              readOnly
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100"
+            />
+
+            {/* State (Auto-filled) */}
+            <input
+              type="text"
+              name="state"
+              placeholder="State"
+              value={customer.state}
+              readOnly
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100"
+            />
           </div>
 
           <button

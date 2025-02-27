@@ -7,74 +7,107 @@ import mongoose from "mongoose";
 import fs from "fs";
 import pdfParse from "pdf-parse";
 import mammoth from "mammoth";
+import axios from "axios";
+import { v2 as cloudinary } from "cloudinary";
+import path from "path";
+import url from "url";
+
 
 const router = express.Router();
 
 // Function to count pages
+
+// Configure Cloudinary (Make sure your .env file has these variables)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 const countPages = async (file) => {
-  if (file.mimetype === "application/pdf") {
-    const dataBuffer = fs.readFileSync(file.path);
-    const data = await pdfParse(dataBuffer);
-    return data.numpages;
-  } else if (file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-    const dataBuffer = fs.readFileSync(file.path);
-    const result = await mammoth.extractRawText({ buffer: dataBuffer });
-    return result.value.split("\n\n").length; // Estimate pages based on paragraphs
+  try {
+    let dataBuffer;
+
+    if (file.path.startsWith("http")) {
+      // ✅ Construct the direct Cloudinary URL (skip API lookup)
+      const fileUrl = file.path.replace("/upload/", "/upload/fl_attachment/"); 
+
+      console.log(`✅ Fetching file from Cloudinary URL: ${fileUrl}`);
+
+      // ✅ Fetch the file securely
+      const response = await axios.get(fileUrl, { responseType: "arraybuffer" });
+      dataBuffer = Buffer.from(response.data);
+    } else {
+      // ✅ Read the file locally (fallback)
+      dataBuffer = fs.readFileSync(file.path);
+    }
+
+    // ✅ Handle PDFs
+    if (file.mimetype === "application/pdf") {
+      const data = await pdfParse(dataBuffer);
+      return data.numpages;
+    }
+
+    // ✅ Handle DOCX files
+    if (file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+      const result = await mammoth.extractRawText({ buffer: dataBuffer });
+      return result.value.split("\n\n").length; // Estimate pages
+    }
+
+    return 1; // Default for unsupported formats
+  } catch (error) {
+    console.error("❌ Error counting pages:", error);
+    return 1;
   }
-  return 1; // Default to 1 page for unsupported formats
 };
+
+
 
 // Place an order
 router.post("/", authMiddleware, upload.array("files", 10), async (req, res) => {
   try {
-    console.log("Order Request Received:", req.body);
-    console.log("Uploaded Files:", req.files);
-
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: "No files uploaded" });
     }
-    const { numCopies, colorType, categoryId } = req.body;
 
-    if (!categoryId || !mongoose.Types.ObjectId.isValid(categoryId)) {
-      return res.status(400).json({ message: "Invalid categoryId format." });
-    }
-    
+    const { numCopies, colorType, categoryId } = req.body;
     const userId = req.user.id;
 
-    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-      return res.status(400).json({ message: "Invalid categoryId format." });
-    }
-
-    const category = await Category.findById(categoryId);
-    if (!category) {
-      return res.status(404).json({ message: "Category not found" });
-    }
+    // Get file URLs from Cloudinary
+    const fileUrls = req.files.map(file => file.path); // Cloudinary stores URLs in `file.path`
 
     // Calculate total pages
     let totalPages = 0;
-    const filePaths = [];
     for (const file of req.files) {
-      const pages = await countPages(file);
-      totalPages += pages;
-      filePaths.push(file.path.replace(/\\/g, "/"));
+      totalPages += await countPages(file);
     }
 
-    // Calculate total cost based on pages
+    // Calculate total cost
+    const category = await Category.findById(categoryId);
     const baseCost = category.costPerCopy;
     const costMultiplier = colorType === "color" ? 2 : 1;
     const totalCost = totalPages * numCopies * baseCost * costMultiplier;
 
-    // Send response to frontend with totalPages
-    res.status(200).json({
-      message: "Files uploaded successfully",
+    // Save order in DB with Cloudinary file URLs
+    const newOrder = new Order({
+      userId,
+      categoryId,
+      filePaths: fileUrls, // Store URLs instead of local paths
+      numCopies,
+      colorType,
+      totalCost,
       totalPages,
     });
 
+    await newOrder.save();
+
+    res.status(200).json({ message: "Order placed successfully", totalPages });
   } catch (error) {
     console.error("Order Error:", error);
     res.status(500).json({ message: "Server error", error });
   }
 });
+
 
 
 // Get orders for a user

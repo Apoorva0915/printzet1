@@ -1,21 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 const ResetPassword = () => {
   const { token } = useParams();
   const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    console.log("🔹 Token from URL:", token);  // Debugging log
+  }, [token]);
 
   const handleResetPassword = async () => {
-    const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/auth/reset-password`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, newPassword }),
-    });
+    if (!newPassword) {
+      alert("Please enter a new password.");
+      return;
+    }
 
-    if (res.ok) {
-      alert("Password reset successful! Please login.");
-      navigate("/login");
+    setIsLoading(true);
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, newPassword }),
+      });
+
+      const data = await res.json();
+      console.log("🔹 Reset Password Response:", data);
+
+      if (res.ok) {
+        alert(data.message || "Password reset successful! Please login.");
+        navigate("/login");
+      } else {
+        alert(data.message || "Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      console.error("❌ Error resetting password:", error);
+      alert("Failed to reset password. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -31,9 +55,10 @@ const ResetPassword = () => {
       />
       <button
         onClick={handleResetPassword}
-        className="w-full bg-green-500 text-white p-2 rounded mt-3 hover:bg-green-600"
+        className={`w-full p-2 rounded mt-3 text-white ${isLoading ? "bg-gray-400" : "bg-green-500 hover:bg-green-600"}`}
+        disabled={isLoading}
       >
-        Reset Password
+        {isLoading ? "Processing..." : "Reset Password"}
       </button>
     </div>
   );

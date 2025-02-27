@@ -15,7 +15,7 @@ const OrderSchema = new mongoose.Schema(
     filePaths: {
       type: [String],
       required: true,
-    },    
+    },
     numCopies: {
       type: Number,
       required: true,
@@ -42,6 +42,9 @@ const OrderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// ✅ Ensure no duplicate indexes
+OrderSchema.index({ userId: 1, categoryId: 1 });
 
 const Order = mongoose.model("Order", OrderSchema);
 export default Order;
