@@ -47,7 +47,7 @@ const Home = () => {
       {/* About Section */}
       <div className="container mx-auto px-6 py-20 flex flex-col md:flex-row items-center gap-8" id="about">
         <div className="md:w-1/2">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">About PrintEcom</h2>
+          <h2 className="text-4xl font-bold text-gray-800 mb-4">About PrintZet</h2>
           <p className="text-gray-600 leading-relaxed">
             PrintEcom is your one-stop destination for all printing needs. We offer high-quality printing solutions,
             from documents to posters, business cards, and more. Experience fast, reliable, and cost-effective printing services with us!

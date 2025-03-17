@@ -14,7 +14,7 @@ const Navbar = () => {
             <div className="container mx-auto flex justify-between items-center">
                 {/* Logo */}
                 <Link to="/" className="text-2xl font-bold text-gray-800">
-                    PrintEcom
+                    PrintZet
                 </Link>
                 {/* Desktop Nav Links */}
                 <div className="hidden md:flex space-x-6">
