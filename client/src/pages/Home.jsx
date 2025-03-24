@@ -6,9 +6,12 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-import slider1Img from "../assets/home-slider/fancy-walls-wallpaper-EmKw1q2QcIM-unsplash.jpg";
-import slider2Img from "../assets/home-slider/geri-sakti-KAO2-CRZXTE-unsplash.jpg";
-import slider3Img from "../assets/home-slider/kelly-sikkema-8DEDp6S93Po-unsplash.jpg";
+import slider1Img from "../assets/home-slider/slider1Img.jpg";
+import slider2Img from "../assets/home-slider/slider2Img.jpg";
+import slider3Img from "../assets/home-slider/slider3Img.jpg";
+import slider4Img from "../assets/home-slider/slider4Img.jpg";
+import slider5Img from "../assets/home-slider/slider5Img.jpg";
+
 import aboutUsImg from "../assets/about-us.jpg";
 
 const customers = [
@@ -18,29 +21,49 @@ const customers = [
   "/images/Customer4.png",
 ];
 
+const featuredProducts = [
+  { id: 1, name: "Flex Banners", image: "/images/flex-banner.jpg" },
+  { id: 2, name: "Mugs", image: "/images/mugs.jpg" },
+  { id: 3, name: "Business Cards", image: "/images/business-cards.jpg" },
+];
+
 const Home = () => {
   return (
     <div className="bg-gray-50">
-      {/* Carousel Section */}
-      <div className="w-full h-[500px] md:h-[450px] lg:h-[550px]">
+      {/* Hero Section */}
+      <div className="relative w-full h-[500px] md:h-[550px] lg:h-[600px]">
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}
-          spaceBetween={50}
+          spaceBetween={0}
           slidesPerView={1}
           navigation
           pagination={{ clickable: true }}
           autoplay={{ delay: 3000 }}
           className="w-full h-full"
         >
-          <SwiperSlide className="flex justify-center items-center">
-            <img src={slider1Img} alt="Slide 1"  className="w-auto h-[500px] md:h-[450px] lg:h-[550px] object-contain mx-auto" />
-          </SwiperSlide>
-          <SwiperSlide className="flex justify-center items-center">
-            <img src={slider2Img} alt="Slide 2"  className="w-auto h-[500px] md:h-[450px] lg:h-[550px] object-contain mx-auto" />
-          </SwiperSlide>
-          <SwiperSlide className="flex justify-center items-center">
-            <img src={slider3Img} alt="Slide 3"  className="w-auto h-[500px] md:h-[450px] lg:h-[550px] object-contain mx-auto" />
-          </SwiperSlide>
+          {[slider1Img, slider2Img, slider3Img, slider4Img, slider5Img].map((img, index) => (
+            <SwiperSlide key={index} className="relative">
+              <img
+                src={img}
+                alt={`Slide ${index + 1}`}
+                className="w-full h-full object-cover brightness-75"
+              />
+              <div className="absolute inset-0 flex flex-col justify-center items-center text-white text-center px-6">
+                <h1 className="text-4xl md:text-5xl font-extrabold">
+                  Print Anything, Anytime
+                </h1>
+                <p className="text-lg md:text-xl mt-2 max-w-2xl">
+                  High-quality printing solutions for documents, accessories, and 3D prints.
+                </p>
+                <Link
+                  to="/order"
+                  className="mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg rounded-lg shadow-md transition"
+                >
+                  Place Order
+                </Link>
+              </div>
+            </SwiperSlide>
+          ))}
         </Swiper>
       </div>
 
@@ -49,7 +72,7 @@ const Home = () => {
         <div className="md:w-1/2">
           <h2 className="text-4xl font-bold text-gray-800 mb-4">About PrintZet</h2>
           <p className="text-gray-600 leading-relaxed">
-            PrintEcom is your one-stop destination for all printing needs. We offer high-quality printing solutions,
+            PrintZet is your one-stop destination for all printing needs. We offer high-quality printing solutions,
             from documents to posters, business cards, and more. Experience fast, reliable, and cost-effective printing services with us!
           </p>
           <Link to="/about" className="mt-4 inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
@@ -59,19 +82,33 @@ const Home = () => {
         <img src={aboutUsImg} alt="About Us" className="md:w-1/2 w-full rounded-lg shadow-md" />
       </div>
 
-      {/* Categories Section */}
+      {/* Services Section */}
       <div className="container mx-auto px-6 py-16" id="categories">
-        <h2 className="text-4xl font-bold text-center text-gray-800 mb-8">Our Categories</h2>
+        <h2 className="text-4xl font-bold text-center text-gray-800 mb-8">Our Services</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {categories.map((category, index) => (
             <Link
               to={`/category/${category.id}`}
               key={index}
-              className="bg-white shadow-md rounded-lg p-4 text-center transform hover:scale-105 transition border border-gray-200"
+              className="bg-white shadow-lg rounded-lg p-4 text-center transform hover:scale-105 transition border border-gray-200 hover:shadow-xl"
             >
-              <img src={category.image} alt={category.name} className="w-full h-60 object-cover rounded-md" />
+              <img src={category.image} alt={category.name} className="w-full h-64 object-cover rounded-md" />
               <h3 className="mt-4 text-lg font-semibold text-gray-700">{category.name}</h3>
             </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Featured Products & Offers Section */}
+      <div className="container mx-auto px-6 py-16">
+        <h2 className="text-4xl font-bold text-center text-gray-800 mb-8">Featured Products & Offers</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {featuredProducts.map((product) => (
+            <div key={product.id} className="bg-white shadow-lg rounded-lg p-4 text-center border border-gray-200 hover:shadow-xl">
+              <img src={product.image} alt={product.name} className="w-full h-60 object-contain rounded-md" />
+              <h3 className="mt-4 text-lg font-semibold text-gray-700">{product.name}</h3>
+              <p className="text-blue-600 font-semibold">Special Discounts Available</p>
+            </div>
           ))}
         </div>
       </div>
@@ -85,7 +122,7 @@ const Home = () => {
               key={index}
               src={customer}
               alt={`Customer ${index + 1}`}
-              className="h-16 md:h-24 object-contain grayscale hover:grayscale-0 transition"
+              className="h-20 md:h-24 object-contain grayscale hover:grayscale-0 transition"
             />
           ))}
         </div>

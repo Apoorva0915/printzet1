@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { FiMenu, FiX, FiChevronDown } from "react-icons/fi";
 import { Link as ScrollLink } from "react-scroll";
+import logo from "../assets/logo.png";
 
 const Navbar = () => {
     const { user, logout } = useAuth();
@@ -14,16 +15,16 @@ const Navbar = () => {
             <div className="container mx-auto flex justify-between items-center">
                 {/* Logo */}
                 <Link to="/" className="text-2xl font-bold text-gray-800">
-                    PrintZet
+                   <img src={logo} alt="logo" className="w-auto h-10" />
                 </Link>
                 {/* Desktop Nav Links */}
                 <div className="hidden md:flex space-x-6">
-                    <Link to="/" className="text-gray-700 hover:text-blue-600 transition">Home</Link>
-                    <ScrollLink to="about" smooth={true} duration={500} className="text-gray-700 hover:text-gray-900 cursor-pointer">
-                        About US
+                    <Link to="/" className="text-gray-700 font-semibold hover:text-blue-600 transition">Home</Link>
+                    <ScrollLink to="about" smooth={true} duration={500} className="text-gray-700 font-semibold hover:text-gray-900 cursor-pointer">
+                        About
                     </ScrollLink>
-                    <ScrollLink to="categories" smooth={true} duration={500} className="text-gray-700 hover:text-gray-900 cursor-pointer">
-                        Categories
+                    <ScrollLink to="categories" smooth={true} duration={500} className="text-gray-700 font-semibold hover:text-gray-900 cursor-pointer">
+                        Services
                     </ScrollLink>
                 </div>
 
