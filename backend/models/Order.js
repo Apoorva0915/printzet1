@@ -1,3 +1,4 @@
+// Order.js (Updated to include subCategory)
 import mongoose from "mongoose";
 
 const OrderSchema = new mongoose.Schema(
@@ -10,6 +11,10 @@ const OrderSchema = new mongoose.Schema(
     categoryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
+      required: true,
+    },
+    subCategory: {
+      type: String, // New field for sub-category selection
       required: true,
     },
     filePaths: {
@@ -42,9 +47,6 @@ const OrderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// ✅ Ensure no duplicate indexes
-OrderSchema.index({ userId: 1, categoryId: 1 });
 
 const Order = mongoose.model("Order", OrderSchema);
 export default Order;

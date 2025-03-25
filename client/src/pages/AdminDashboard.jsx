@@ -54,23 +54,12 @@ const AdminDashboard = () => {
 
                     <h3 className="text-xl font-bold mt-6">Recent Orders</h3>
                     <table className="w-full mt-4 border-collapse border border-gray-200">
-                        <thead>
-                            <tr className="bg-gray-100">
-                                <th className="border p-2">User</th>
-                                <th className="border p-2">Address</th>
-                                <th className="border p-2">Category</th>
-                                <th className="border p-2">Total Cost</th>
-                                <th className="border p-2">Status</th>
-                                <th className="border p-2">Uploaded Files</th>
-                                <th className="border p-2">Actions</th>
-                            </tr>
-                        </thead>
                         <tbody>
                             {orders.map((order) => (
                                 <tr key={order._id}>
-                                    <td className="border p-2">{order.userId.fullName}</td>
+                                    <td className="border p-2">{order.userId ? order.userId.fullName : "Unknown User"}</td>
                                     <td className="border p-2">
-                                        {order.userId.address ? (
+                                        {order.userId && order.userId.address ? (
                                             <>
                                                 <p>{order.userId.address.address}</p>
                                                 <p>{order.userId.address.city}, {order.userId.address.state} - {order.userId.address.pincode}</p>
@@ -79,17 +68,26 @@ const AdminDashboard = () => {
                                             <p className="text-gray-500">No address available</p>
                                         )}
                                     </td>
-                                    <td className="border p-2">{order.categoryId.name}</td>
-                                    <td className="border p-2">₹{order.totalCost}</td>
-                                    <td className="border p-2">{order.status}</td>
+                                    <td className="border p-2">{order.categoryId ? order.categoryId.name : "No Category"}</td>
+                                    <td className="border p-2">{order.subCategory || "N/A"}</td>
+                                    <td className="border p-2">{order.numCopies || 1}</td>
+                                    <td className="border p-2">{order.colorType === "color" ? "Color" : "Black & White"}</td>
+                                    <td className="border p-2">{order.totalPages || "N/A"}</td>
+                                    <td className="border p-2">₹{order.totalCost || 0}</td>
+                                    <td className="border p-2">{order.createdAt ? new Date(order.createdAt).toLocaleString() : "N/A"}</td>
+                                    <td className="border p-2">{order.status || "Pending"}</td>
                                     <td className="border p-2">
-                                        {order.filePaths && order.filePaths.map((file, index) => (
-                                            <div key={index} className="mb-1">
-                                                <a href={file} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
-                                                    View File {index + 1}
-                                                </a>
-                                            </div>
-                                        ))}
+                                        {order.filePaths && order.filePaths.length > 0 ? (
+                                            order.filePaths.map((file, index) => (
+                                                <div key={index} className="mb-1">
+                                                    <a href={file} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                                                        View File {index + 1}
+                                                    </a>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500">No files uploaded</p>
+                                        )}
                                     </td>
                                     <td className="border p-2">
                                         <button
@@ -109,6 +107,7 @@ const AdminDashboard = () => {
                                 </tr>
                             ))}
                         </tbody>
+
                     </table>
 
                 </>

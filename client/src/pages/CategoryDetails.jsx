@@ -64,7 +64,21 @@ const CategoryDetails = () => {
           ) : (
             <div className="space-y-3">
               <p className="text-lg font-semibold text-gray-700">📄 Paper Size: <span className="text-blue-600">{category.paperSize}</span></p>
-              <p className="text-lg font-semibold text-gray-700">💰 Cost per Copy: <span className="text-green-600">₹{category.costPerCopy}</span></p>
+              {category.costPerCopy && typeof category.costPerCopy === "object" ? (
+                <div>
+                  <p className="text-lg font-semibold text-gray-700">💰 Cost per Copy:</p>
+                  <ul className="ml-4 list-disc">
+                    {Object.entries(category.costPerCopy).map(([key, value]) => (
+                      <li key={key} className="text-green-600">
+                        {key.replace("-", " ").toUpperCase()}: ₹{value}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <p className="text-lg font-semibold text-gray-700">💰 Cost per Copy: <span className="text-green-600">₹{category.costPerCopy}</span></p>
+              )}
+
               {/* Order Now Button */}
               <button
                 className="mt-6 px-6 py-3 rounded-lg text-white font-bold transition bg-gradient-to-r from-blue-500 to-blue-700 hover:scale-105 hover:shadow-xl"

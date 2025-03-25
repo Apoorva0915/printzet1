@@ -1,6 +1,6 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import categories from "../data/categories";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -13,6 +13,7 @@ import slider4Img from "../assets/home-slider/slider4Img.jpg";
 import slider5Img from "../assets/home-slider/slider5Img.jpg";
 
 import aboutUsImg from "../assets/about-us.jpg";
+import { useEffect, useState } from "react";
 
 const customers = [
   "/images/Customer1.png",
@@ -28,6 +29,22 @@ const featuredProducts = [
 ];
 
 const Home = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    setIsAuthenticated(!!user);
+  }, []);
+
+  const handleHeroButtonClick = () => {
+    if (!isAuthenticated) {
+      navigate("/login");
+    } else {
+      document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <div className="bg-gray-50">
       {/* Hero Section */}
@@ -55,12 +72,12 @@ const Home = () => {
                 <p className="text-lg md:text-xl mt-2 max-w-2xl">
                   High-quality printing solutions for documents, accessories, and 3D prints.
                 </p>
-                <Link
-                  to="/order"
+                <button
+                  onClick={handleHeroButtonClick}
                   className="mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg rounded-lg shadow-md transition"
                 >
                   Place Order
-                </Link>
+                </button>
               </div>
             </SwiperSlide>
           ))}
@@ -96,8 +113,18 @@ const Home = () => {
               <h3 className="mt-4 text-lg font-semibold text-gray-700">{category.name}</h3>
             </Link>
           ))}
+
+          {/* Bulk Ordering Section - Takes 2 Columns */}
+          <div className="bg-white shadow-lg md:col-span-2 p-10 rounded-lg border border-gray-200 text-gray-700 text-center hover:shadow-xl">
+            <h3 className="text-5xl font-semibold text-gray-800 mb-5">Bulk Ordering Options</h3>
+            <p className="text-lg">We offer bulk ordering options for businesses & institutions.</p>
+            <p className="mt-2">Send your requirements and inquiries to:</p>
+            <p className="font-medium mt-1">📧 <a href="mailto:info@zenlynxtechnologies.com" className="text-blue-600">info@zenlynxtechnologies.com</a></p>
+            <p className="font-medium">📱 <a href="https://wa.me/7325966706" className="text-green-600">7325966706</a></p>
+          </div>
         </div>
       </div>
+
 
       {/* Featured Products & Offers Section */}
       <div className="container mx-auto px-6 py-16">
