@@ -56,7 +56,7 @@ const Footer = () => {
       </div>
 
       {/* Copyright Section */}
-      <div className="mt-8 text-center border-t border-gray-700 pt-4">
+      <div className="mt-5 text-center border-t border-gray-700 pt-4">
         <p className="text-gray-500">© {new Date().getFullYear()} PrintZet. All Rights Reserved.</p>
       </div>
     </footer>

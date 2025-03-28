@@ -1,4 +1,3 @@
-// Order.js (Updated to include subCategory)
 import mongoose from "mongoose";
 
 const OrderSchema = new mongoose.Schema(
@@ -14,11 +13,23 @@ const OrderSchema = new mongoose.Schema(
       required: true,
     },
     subCategory: {
-      type: String, // New field for sub-category selection
+      type: String,
       required: true,
     },
+    paperType: {
+      type: String,
+    },
+    printQuality: {
+      type: String,
+    },
+    binding: {
+      type: String,
+    },
+    lamination: {
+      type: String,
+    },
     filePaths: {
-      type: [String],
+      type: [String], // ✅ Stores Cloudinary URLs
       required: true,
     },
     numCopies: {
@@ -28,14 +39,14 @@ const OrderSchema = new mongoose.Schema(
     },
     colorType: {
       type: String,
-      enum: ["blackWhite", "color"],
-      required: true,
-    },
-    totalCost: {
-      type: Number,
+      enum: ["blackWhite", "color"], // ✅ Ensures only valid values
       required: true,
     },
     totalPages: {
+      type: Number,
+      required: true,
+    },
+    totalCost: {
       type: Number,
       required: true,
     },
